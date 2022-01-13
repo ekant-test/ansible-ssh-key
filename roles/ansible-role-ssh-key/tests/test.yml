@@ -1,0 +1,48 @@
+---
+# you will need a valid AWS account and role to manage EC2 keys and SSM parameters to run this
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Test Generate Basic Key
+          include_role:
+            name: ansible-role-stack-key
+          vars:
+            domain: test
+            service_name: example-service
+      rescue:
+        - debug: msg="ignore test failure"
+
+    - block:
+        - name: Test Generate Key Override
+          include_role:
+            name: ansible-role-stack-key
+          vars:
+            domain: test
+            service_name: example-service
+            key_name: TestMyCustomKeyName
+      rescue:
+        - debug: msg="ignore test failure"
+
+    - block:
+        - name: Test Generate Key Override
+          include_role:
+            name: ansible-role-stack-key
+          vars:
+            domain: test
+            service_name: example-service
+            key_name: TestMyCustomKeyName
+      rescue:
+        - debug: msg="ignore test failure"
+
+    - block:
+        - name: Test Generate Key With Encryption Alias
+          include_role:
+            name: ansible-role-stack-key
+          vars:
+            domain: test
+            service_name: example-service
+            secrets_key_alias: alias/aws/ssm
+      rescue:
+        - debug: msg="ignore test failure"

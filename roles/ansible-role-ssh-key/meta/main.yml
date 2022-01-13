@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: Ekant Mate
+  description: Creates a EC2 ssh key pair and stores the private key in the System Manager parameter store.
+  company: "Ekant"
+  min_ansible_version: 2.7
+  categories:
+  - cloud
+  - aws
+  - ssh

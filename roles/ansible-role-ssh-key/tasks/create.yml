@@ -1,0 +1,46 @@
+---
+- name: Check and Create SSH Key Pair
+  ec2_key:
+    name: "{{ _ec2_key_name }}"
+  no_log: "{{ secure_mode }}"
+  ignore_errors: true
+  register: ec2_key_result
+  changed_when: >
+    'key' in ec2_key_result and 'private_key' in ec2_key_result.key
+  failed_when: >
+    ( 'key' not in ec2_key_result ) and
+    ( 'msg' not in ec2_key_result or 'InvalidKeyPair.Duplicate' not in ec2_key_result.msg )
+  tags: [ aws, ssh ]
+
+- name: Report Error When Key Generation Failed
+  fail:
+    msg: "Generating key pair failed: {{ ec2_key_result['msg'] }}"
+  when: ec2_key_result is failed
+  tags: [ aws, ssh ]
+
+- block:
+  # save the key to the parameter store when the key was generated
+  - name: Store Private Key in System Manager Parameter Store
+    aws_ssm_parameter_store:
+      name: "{{ _ssm_path }}"
+      description: "the private key to connect to {{ service_name }} instances"
+      string_type: SecureString
+      key_id: "{{ secrets_key_alias }}"
+      value: "{{ ec2_key_result['key']['private_key'] }}"
+    when: ec2_key_result is changed
+    tags: [ aws, ssh ]
+
+  - name: Display Private Key Parameter Name
+    debug: msg="Stack key is {{ _ssm_path }} using encytion key {{ secrets_key_alias }}"
+    tags: [ aws, ssh ]
+
+  rescue:
+    - name: Report Private Key Parameter Name
+      debug: msg="Failed to save stack key {{ _ssm_path }}"
+      tags: [ aws, ssh ]
+
+    - name: Remove Key Pair
+      ec2_key:
+        name: "{{ _ec2_key_name }}"
+        state: absent
+      tags: [ aws, ssh ]

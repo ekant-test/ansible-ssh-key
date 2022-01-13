@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    cleanup: false
+    domain: test
+    service_name: example-service
+    env: dev
+  roles:
+    - ansible-role-ssh-key
+  tasks:
+    - name: Delete Test Parameter
+      aws_ssm_parameter_store:
+        name: "{{ _ssm_path }}"
+        state: absent
+      when: cleanup
+
+    - name: Remove Test Key
+      ec2_key:
+        name: "{{ _ec2_key_name }}"
+        state: absent
+      when: cleanup

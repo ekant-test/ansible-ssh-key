@@ -1,0 +1,12 @@
+---
+- name: Delete SSH Key Pair
+  ec2_key:
+    name: "{{ _ec2_key_name }}"
+    state: absent
+  tags: [ aws, ssh ]
+
+- name: Remove Private Key from System Manager Parameter Store
+  aws_ssm_parameter_store:
+    name: "{{ _ssm_path }}"
+    state: absent
+  tags: [ aws, ssh ]

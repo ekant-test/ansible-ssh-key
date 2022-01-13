@@ -1,0 +1,9 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    domain: test
+    service_name: ekant-test
+    env: dev
+  roles:
+    - ansible-role-ssh-key

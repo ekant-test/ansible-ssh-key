@@ -1,0 +1,14 @@
+---
+- pause:
+    prompt: "Key deletion will not be recoverable! Confirm to proceed by typing yes"
+  register: destroy_confirmation
+  delegate_to: localhost
+  when: key_action == 'destroy' and not ansible_env.CI | default(false) | bool
+
+# run the destroy action only when confirmed or CI is enabled
+- name: "{{ key_action | title }} Key"
+  include_tasks: "{{ key_action }}.yml"
+  when: |
+    key_action != 'destroy' or
+    hostvars['localhost']['destroy_confirmation']['user_input'] | default(False) | bool or
+    ansible_env.CI | default(false) | bool

@@ -1,0 +1,30 @@
+---
+# either create or destroy keys
+key_action: create
+
+# ***** EC2 ********************************************************************
+
+# by default the service name is the key name, but we can vary this if a service has multiple services
+key_name: "{{ service_name }}"
+
+# for EC2 keys we must append the environment if defined
+_ec2_default_key_name: "{{ key_name + ( '-' + env if env is defined else '' ) }}"
+
+# the final name of the ec2 key, can be overidden but take note that the
+_ec2_key_name: "{{  key_name + ( '-' + env if env is defined else '' ) | default(_ec2_default_key_name) }}"
+
+# ***** SSM ********************************************************************
+
+#  encryption key to use
+secrets_key_alias: alias/aws/ssm
+
+# appended to the key name in system parameter store
+key_suffix: private-key
+
+# the internal name of the ssm key to generate, can be overidden by key_name
+_ssm_key_name: "{{  key_name }}{{ '-' + key_suffix if key_suffix | default('', True) != '' else '' }}"
+
+# variable of the entire storage path in system manager parameter store
+_ssm_path: "{{ '/' + domain if domain is defined else '' }}{{ '/' + env if env is defined else '' }}/{{ service_name }}/{{ _ssm_key_name }}"
+
+secure_mode: true
