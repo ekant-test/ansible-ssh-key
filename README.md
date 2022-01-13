@@ -1,4 +1,4 @@
-# Ansible Role: Create EC2 Stack Key
+# Ansible Role: Create EC2 SSH Key
 
 This role can be used to lifecycle manage an EC2 key and secret in AWS System Manager Parameter Store. The role will create a EC2 key pair and stores the private key in the System Manager store. When passed the variable `key_action=destroy` the role will remove the EC2 key and also the correlating AWS System Manager Parameter Store secret variable.
 
